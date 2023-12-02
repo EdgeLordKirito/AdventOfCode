@@ -53,12 +53,6 @@ internal partial class _2023Day2
         return result;
     }
 
-    public int Calculate()
-    {
-        int result = Games[0].CalculateGamePower();
-        return result;
-    }
-
     private bool IsGamePossibleUnderConstraints(ElfGame game)
     {
         return game.IsPossibleUnderConstraints(RedConstraint,GreenConstraint,BlueConstraint);
