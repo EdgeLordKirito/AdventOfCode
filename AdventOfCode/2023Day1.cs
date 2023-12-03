@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 
 namespace AdventOfCode;
-internal  sealed partial class _2023Day1 : Solution
+internal sealed partial class _2023Day1 : Solution
 {
     private static Dictionary<string, int> _lookup = new Dictionary<string, int>
     {
@@ -27,7 +27,7 @@ internal  sealed partial class _2023Day1 : Solution
         { "9"    , 9 },
     };
 
-    public _2023Day1(string path): base(path)
+    public _2023Day1(string path) : base(path)
     {
     }
 

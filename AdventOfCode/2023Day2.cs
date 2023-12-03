@@ -1,10 +1,5 @@
 ﻿using AdventOfCode;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Day2AdventOfCode;
 internal partial class _2023Day2 : Solution
@@ -15,7 +10,7 @@ internal partial class _2023Day2 : Solution
 
     private readonly int BlueConstraint = 14;
 
-    public _2023Day2(string path): base(path)
+    public _2023Day2(string path) : base(path)
     {
     }
 
@@ -75,7 +70,7 @@ internal partial class _2023Day2 : Solution
 
     private bool IsGamePossibleUnderConstraints(ElfGame game)
     {
-        return game.IsPossibleUnderConstraints(RedConstraint,GreenConstraint,BlueConstraint);
+        return game.IsPossibleUnderConstraints(RedConstraint, GreenConstraint, BlueConstraint);
     }
 
     private partial class ElfGame
@@ -209,7 +204,7 @@ internal partial class _2023Day2 : Solution
             return result;
         }
 
-        private int Power((int red,int green,int blue) minimal)
+        private int Power((int red, int green, int blue) minimal)
         {
             int result = minimal.red * minimal.green * minimal.blue;
             return result;
