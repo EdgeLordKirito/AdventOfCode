@@ -1,11 +1,12 @@
-﻿using Ornaments.App;
+﻿using Day2AdventOfCode;
 
 namespace AdventOfCode;
 
 internal class Program
 {
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
-        await OrnamentsApp.CreateDefault().RunAsync(args);
+        new _2023Day1(Path.Combine(Globals.Input2023, "Day1.txt")).Run();
+        new _2023Day2(Path.Combine(Globals.Input2023, "Day2.txt")).Run();
     }
 }

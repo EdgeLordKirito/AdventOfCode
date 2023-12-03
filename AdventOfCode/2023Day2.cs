@@ -1,4 +1,4 @@
-﻿using Ornaments.Solutions;
+﻿using AdventOfCode;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,32 +7,22 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Day2AdventOfCode;
-[RegisterOrnament("Cube Conundrum", 2023, 2)]
-internal partial class _2023Day2
+internal partial class _2023Day2 : Solution
 {
-    private List<ElfGame> Games { get; set; }
+    private readonly int RedConstraint = 12;
 
-    public int RedConstraint { get; private set; }
+    private readonly int GreenConstraint = 13;
 
-    public int GreenConstraint { get; private set; }
+    private readonly int BlueConstraint = 14;
 
-    public int BlueConstraint { get; private set; }
-
-    public _2023Day2(string[] input,int Red, int Green, int Blue)
+    public _2023Day2(string path): base(path)
     {
-        Games = new List<ElfGame>();
-        foreach (string line in input)
-        {
-            Games.Add(new ElfGame(line));
-        }
-        RedConstraint = Red;
-        GreenConstraint = Green;
-        BlueConstraint = Blue;
     }
 
-    public int DoPart1()
+    public override object DoPartOne()
     {
         int result = 0;
+        List<ElfGame> Games = ParseInput(Input);
         foreach (ElfGame game in Games)
         {
             if (IsGamePossibleUnderConstraints(game))
@@ -43,12 +33,42 @@ internal partial class _2023Day2
         return result;
     }
 
-    public int DoPart2()
+    public override object DoPartTwo()
     {
         int result = 0;
+        List<ElfGame> Games = ParseInput(Input);
         foreach (ElfGame game in Games)
         {
             result += game.CalculateGamePower();
+        }
+        return result;
+    }
+
+    public override void Run()
+    {
+        Init();
+        Console.WriteLine($"2023 Day 2");
+        Console.WriteLine($"Part one: {DoPartOne()}");
+        Console.WriteLine($"Part two: {DoPartTwo()}");
+    }
+
+    public override void Init()
+    {
+        FileInfo info = new FileInfo(InputPath);
+        if (!info.Exists)
+        {
+            return;
+        }
+        string[] input = File.ReadAllLines(InputPath);
+        Input = input;
+    }
+
+    private List<ElfGame> ParseInput(string[] input)
+    {
+        List<ElfGame> result = new List<ElfGame>();
+        foreach (string line in input)
+        {
+            result.Add(new ElfGame(line));
         }
         return result;
     }

@@ -1,9 +1,7 @@
-﻿using Ornaments.Solutions;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace AdventOfCode;
-[RegisterOrnament("Trebuchet?!", 2023, 1)]
-internal  sealed partial class _2023Day1 : ISolution
+internal  sealed partial class _2023Day1 : Solution
 {
     private static Dictionary<string, int> _lookup = new Dictionary<string, int>
     {
@@ -29,6 +27,10 @@ internal  sealed partial class _2023Day1 : ISolution
         { "9"    , 9 },
     };
 
+    public _2023Day1(string path): base(path)
+    {
+    }
+
     [GeneratedRegex("[0-9]|one|two|three|four|five|six|seven|eight|nine", RegexOptions.Compiled)]
     private static partial Regex ExtractNumbers();
 
@@ -51,32 +53,46 @@ internal  sealed partial class _2023Day1 : ISolution
         return result;
     }
 
-
-
-    public async Task<object> DoPartOneAsync(ISolutionContext solutionContext)
+    public override object DoPartOne()
     {
-        await Task.CompletedTask;
-        var input = solutionContext.As<IEnumerable<string>>();
+        string[] input = new string[Input.Length];
+        for (int i = 0; i < Input.Length; i++)
+        {
+            input[i] = new string(Input[i]);
+        }
         return input
             .Select(s => ExtractCalibrationValue(s, false))
             .Sum();
     }
 
-    public async Task<object> DoPartTwoAsync(ISolutionContext solutionContext)
+    public override object DoPartTwo()
     {
-        await Task.CompletedTask;
-        var input = solutionContext.As<IEnumerable<string>>();
+        string[] input = new string[Input.Length];
+        for (int i = 0; i < Input.Length; i++)
+        {
+            input[i] = new string(Input[i]);
+        }
         return input
             .Select(s => ExtractCalibrationValue(s, true))
             .Sum();
     }
 
-    public bool TryParse(string input, out object parsed)
+    public override void Init()
     {
-        parsed = input.Trim()
-            .ReplaceLineEndings()
-            .Split($"{Environment.NewLine}");
+        FileInfo info = new FileInfo(InputPath);
+        if (!info.Exists)
+        {
+            return;
+        }
+        string[] lines = File.ReadAllLines(InputPath);
+        Input = lines;
+    }
 
-        return true;
+    public override void Run()
+    {
+        Init();
+        Console.WriteLine($"2023 Day 1");
+        Console.WriteLine($"Part one: {DoPartOne()}");
+        Console.WriteLine($"Part two: {DoPartTwo()}");
     }
 }
