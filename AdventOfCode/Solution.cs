@@ -12,7 +12,7 @@ internal abstract class Solution
         InputPath = inputPath;
     }
     public string InputPath { get; set; }
-    public string[] Input { get; set; }
+    public string[] Input { get; set; } = Array.Empty<string>();
 
     public abstract object DoPartOne();
     public abstract object DoPartTwo();
