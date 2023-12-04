@@ -49,10 +49,10 @@ internal class _2023Day3 : Solution
 
     public override void Run()
     {
-        Init();
-        Console.WriteLine($"2023 Day 2");
-        Console.WriteLine($"Part one: {DoPartOne()}");
-        Console.WriteLine($"Part two: {DoPartTwo()}");
+        //Init();
+        //Console.WriteLine($"2023 Day 2");
+        //Console.WriteLine($"Part one: {DoPartOne()}");
+        //Console.WriteLine($"Part two: {DoPartTwo()}");
     }
 
     private char[][] InputAsArray()
