@@ -33,6 +33,7 @@ internal class _2023Day5 : Solution
         return locations.Min();
     }
 
+    //Takes to damn long
     public override object DoPartTwo()
     {
         long minimum = long.MaxValue;
@@ -51,6 +52,10 @@ internal class _2023Day5 : Solution
                 List<long> temperatures = RunMap(lights, _lightToTemperaturMap);
                 List<long> humidities = RunMap(temperatures, _temperatureToHumidityMap);
                 List<long> locations = RunMap(humidities, _humidityToLocationMap);
+                if (locations.Count == 0)
+                {
+                    continue;
+                }
                 long min = locations.Min();
                 if (min < minimum)
                 {
