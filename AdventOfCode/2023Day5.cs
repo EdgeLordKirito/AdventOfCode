@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace AdventOfCode;
 internal class _2023Day5 : Solution
 {
 
-    public long[] _seeds = Array.Empty<long>();
+    public long[] _seeds = [];
     public long[][] _seedToSoilMap = [];
     public long[][] _soilToFertilizerMap = [];
     public long[][] _fertilizerToWaterMap = [];
@@ -23,51 +24,293 @@ internal class _2023Day5 : Solution
 
     public override object DoPartOne()
     {
-        List<long> soils = RunMap(_seeds.ToList(), _seedToSoilMap);
-        List<long> fertilizers = RunMap(soils, _soilToFertilizerMap);
-        List<long> waters = RunMap(fertilizers, _fertilizerToWaterMap);
-        List<long> lights = RunMap(waters, _waterToLightMap);
-        List<long> temperatures = RunMap(lights, _lightToTemperaturMap);
-        List<long> humidities = RunMap(temperatures, _temperatureToHumidityMap);
-        List<long> locations = RunMap(humidities, _humidityToLocationMap);
-        return locations.Min();
-    }
-
-    //Takes to damn long
-    public override object DoPartTwo()
-    {
         long minimum = long.MaxValue;
-        List<Range> range = Seeds();
-        long total = range.Sum(x => x.Count);
-        long count = 0;
-        foreach (Range r in range)
+        foreach (long seed in _seeds)
         {
-            for (long i = r.Start; i < r.End; i++)
+            long loc = CalculateSeedLocation(seed);
+            if (loc < minimum)
             {
-                long curr = r.Current;
-                List<long> soils = RunMap(new List<long> { curr }, _seedToSoilMap);
-                List<long> fertilizers = RunMap(soils, _soilToFertilizerMap);
-                List<long> waters = RunMap(fertilizers, _fertilizerToWaterMap);
-                List<long> lights = RunMap(waters, _waterToLightMap);
-                List<long> temperatures = RunMap(lights, _lightToTemperaturMap);
-                List<long> humidities = RunMap(temperatures, _temperatureToHumidityMap);
-                List<long> locations = RunMap(humidities, _humidityToLocationMap);
-                if (locations.Count == 0)
-                {
-                    continue;
-                }
-                long min = locations.Min();
-                if (min < minimum)
-                {
-                    minimum = min;
-                }
-                count++;
-                PrintMileStone(count, total, minimum);
-                SafetyPrint(CalculatePercentage(count, total));
-
+                minimum = loc;
             }
         }
         return minimum;
+    }
+
+    //Takes to damn long
+    //public override object DoPartTwo()
+    //{
+    //    long minimum = long.MaxValue;
+    //    List<Range> range = Seeds();
+    //    long total = range.Sum(x => x.Count);
+    //    long count = 0;
+    //    foreach (Range r in range)
+    //    {
+    //        for (long i = r.Start; i < r.End; i++)
+    //        {
+    //            long curr = r.Current;
+    //            List<long> soils = RunMap(new List<long> { curr }, _seedToSoilMap);
+    //            List<long> fertilizers = RunMap(soils, _soilToFertilizerMap);
+    //            List<long> waters = RunMap(fertilizers, _fertilizerToWaterMap);
+    //            List<long> lights = RunMap(waters, _waterToLightMap);
+    //            List<long> temperatures = RunMap(lights, _lightToTemperaturMap);
+    //            List<long> humidities = RunMap(temperatures, _temperatureToHumidityMap);
+    //            List<long> locations = RunMap(humidities, _humidityToLocationMap);
+    //            if (locations.Count == 0)
+    //            {
+    //                continue;
+    //            }
+    //            long min = locations.Min();
+    //            if (min < minimum)
+    //            {
+    //                minimum = min;
+    //            }
+    //            count++;
+    //            PrintMileStone(count, total, minimum);
+    //            SafetyPrint(CalculatePercentage(count, total));
+
+    //        }
+    //    }
+    //    return minimum;
+    //}
+
+    public override object DoPartTwo()
+    {
+        List<Range> ranges = Seeds();
+        long total = ranges.Sum(x => x.Count);
+        List<Thread> threads = new List<Thread>();
+        bool timerStop = false;
+        Thread timer = new Thread(() =>
+        {
+            TimeSpan ts = new TimeSpan(0, 0, 1, 0, 0);
+            while (!timerStop)
+            {
+                Console.WriteLine("Running");
+                Thread.Sleep(ts);
+            }
+        });
+
+        //Create a threadsafe lsit of longs
+        ConcurrentBag<long> minimums = new ConcurrentBag<long>();
+        //Make it that each thread gets a range and calls the ClaculateMinimum method on it and returns the minimum
+        long count = 0;
+        int threadCount = 0;
+        foreach (Range r in ranges)
+        {
+            Thread t = new Thread(() => CalculateMinimumThreaded(r, count, total, minimums));
+            t.Name = $"Thread: {threadCount}";
+            threads.Add(t);
+            t.Start();
+            threadCount++;
+        }
+        Console.WriteLine($"Number of threads: {threadCount}");
+        timer.Start();
+        //Wait for all threads to finish
+        foreach (Thread t in threads)
+        {
+            t.Join();
+            Console.WriteLine($"Thread {t.Name} joined");
+        }
+        //ensures that the timer stops
+        timerStop = true;
+        //Get the minimum from the threadsafe list
+        long minimum = minimums.Min();
+        return minimum;
+    }
+
+    //public async Task<object> DoPartTwoAsync()
+    //{
+    //    List<Range> ranges = await Task.Run(Seeds);
+    //    long total = ranges.Sum(x => x.Count);
+    //    List<Thread> threads = new List<Thread>();
+    //    bool timerStop = false;
+    //    Thread timer = new Thread(() => 
+    //    { 
+    //        TimeSpan ts = new TimeSpan(0, 0, 1, 0, 0);
+    //        while (!timerStop)
+    //        {
+    //            Console.WriteLine("Running");
+    //            Thread.Sleep(ts);
+    //        }
+    //    });
+
+    //    //Create a threadsafe lsit of longs
+    //    ConcurrentBag<long> minimums = new ConcurrentBag<long>();
+    //    //Make it that each thread gets a range and calls the ClaculateMinimum method on it and returns the minimum
+    //    long count = 0;
+    //    foreach (Range r in ranges)
+    //    {
+    //        Thread t = new Thread(() => CalculateMinimumThreaded(r,count,total,minimums));
+    //        threads.Add(t);
+    //        t.Start();
+    //    }
+    //    timer.Start();
+    //    //Wait for all threads to finish
+    //    foreach (Thread t in threads)
+    //    {
+    //        t.Join();
+    //    }
+    //    timerStop = true;
+    //    //Get the minimum from the threadsafe list
+    //    long minimum = minimums.Min();
+    //    return minimum;
+    //}
+
+    public override void Init()
+    {
+        FileInfo fileInfo = new FileInfo(InputPath);
+        if (!fileInfo.Exists)
+        {
+            return;
+        }
+        Input = File.ReadAllLines(InputPath);
+    }
+
+    public override void Run()
+    {
+        Init();
+        ParseInput();
+        Console.WriteLine($"2023 Day 5");
+        Console.WriteLine($"Part one: {DoPartOne()}");
+        object part2 = DoPartTwo();
+        Console.WriteLine($"Part two: {part2}");
+        File.WriteAllText(Path.Combine(Globals.Output2023, "Day5Solution.txt"), part2.ToString());
+    }
+
+    //public async void RunAsync()
+    //{
+    //    await Task.Run(Init);
+    //    await Task.Run(ParseInput);
+    //    Console.WriteLine($"2023 Day 5");
+    //    object partOne = await Task.Run(DoPartOne);
+    //    Console.WriteLine($"Part one: {partOne}");
+    //    object part2 = await Task.Run(DoPartTwo);
+    //    Console.WriteLine($"Part two: {part2}");
+    //    File.WriteAllText(Path.Combine(Globals.Input2023, "Day5Solution.txt"), part2.ToString());
+    //}
+
+    private long FindValueInMap(long input, long[][] map)
+    {
+        long result = long.MaxValue;
+        bool found = false;
+        foreach (long[] longs in map)
+        {
+            Range r = new Range(longs[1], longs[2]);
+
+            if (r.IsContained(input))
+            {
+                long offset = r.CalculateOffset(input);
+                result = longs[0] + offset;
+            }
+            if (result != long.MaxValue)
+            {
+                found = true;
+                break;
+            }
+        }
+        return found ? result : input;
+    }
+
+    private long CalculateSeedLocation(long Seed)
+    {
+        long soil = FindValueInMap(Seed, _seedToSoilMap);
+        long fertilizer = FindValueInMap(soil, _soilToFertilizerMap);
+        long water = FindValueInMap(fertilizer, _fertilizerToWaterMap);
+        long light = FindValueInMap(water, _waterToLightMap);
+        long temperature = FindValueInMap(light, _lightToTemperaturMap);
+        long humidity = FindValueInMap(temperature, _temperatureToHumidityMap);
+        long location = FindValueInMap(humidity, _humidityToLocationMap);
+        return location;
+    }
+
+    private List<Range> Seeds()
+    {
+        List<Range> result = new List<Range>();
+        for (int i = 0; i < _seeds.Length; i = i + 2)
+        {
+            long start = _seeds[i];
+            long length = _seeds[i + 1];
+            result.Add(new Range(start, length));
+        }
+        return result;
+    }
+
+    private long CalculateMinimum(Range range)
+    {
+        long min = long.MaxValue;
+        for (long i = range.Start; i < range.End; i++)
+        {
+            long location = CalculateSeedLocation(i);
+            if (location < min)
+            {
+                min = location;
+            }
+        }
+        return min;
+    }
+
+    private void CalculateMinimumThreaded(Range range, long numOfCompleted ,long total ,ConcurrentBag<long> resultArea)
+    {
+        long min = long.MaxValue;
+        for (long i = range.Start; i < range.End; i++)
+        {
+            long location = CalculateSeedLocation(i);
+            if (location < min)
+            {
+                min = location;
+            }
+            long val = Interlocked.Increment(ref numOfCompleted);
+            double per = CalculatePercentage(val, total);
+            if (IsFullPercentage(per))
+            {
+
+            }
+        }
+        resultArea.Add(min);
+    }
+
+    private bool IsFullPercentage(double val)
+    {
+        return val % 1 == 0;
+    }
+
+    //ToString | Debug stuff
+    public override string? ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        return sb.AppendLine($"")
+        .AppendLine($"Seeds:")
+        .AppendLine($"{string.Join(", ", _seeds)}")
+        .AppendLine($"SeedToSoilMap:")
+        .AppendLine($"{ArrayToString(_seedToSoilMap)}")
+        .AppendLine($"SoilToFertilizerMap:")
+        .AppendLine($"{ArrayToString(_soilToFertilizerMap)}")
+        .AppendLine($"FertilizerToWaterMap:")
+        .AppendLine($"{ArrayToString(_fertilizerToWaterMap)}")
+        .AppendLine($"WaterToLightMap:")
+        .AppendLine($"{ArrayToString(_waterToLightMap)}")
+        .AppendLine($"LightToTemperaturMap:")
+        .AppendLine($"{ArrayToString(_lightToTemperaturMap)}")
+        .AppendLine($"TemperatureToHumidityMap:")
+        .AppendLine($"{ArrayToString(_temperatureToHumidityMap)}")
+        .AppendLine($"HumidityToLocationMap:")
+        .AppendLine($"{ArrayToString(_humidityToLocationMap)}").ToString();
+    }
+
+    private string ArrayToString(long[][] array)
+    {
+        StringBuilder sb = new StringBuilder();
+        foreach (long[] longs in array)
+        {
+            sb.AppendLine(string.Join(", ", longs));
+        }
+        return sb.ToString();
+    }  
+    
+    private string ArrayToString(long[] array)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine(string.Join(", ", array));
+        return sb.ToString();
     }
 
     private void SafetyPrint(double percentage)
@@ -79,10 +322,9 @@ internal class _2023Day5 : Solution
         }
     }
 
-    private void PrintMileStone(long count, long total, long minimum)
+    private void PrintPercentage(double val)
     {
-        double percent = CalculatePercentage(count, total);
-        PrintIfFullPercent(percent, minimum);
+        Console.WriteLine($"Process is {val}% Complete");
     }
 
     //Write a method that takes in a current value and a total and return the percentage
@@ -104,132 +346,8 @@ internal class _2023Day5 : Solution
         }
     }
 
-    public override void Init()
-    {
-        FileInfo fileInfo = new FileInfo(InputPath);
-        if (!fileInfo.Exists)
-        {
-            return;
-        }
-        Input = File.ReadAllLines(InputPath);
-    }
 
-    public override void Run()
-    {
-        Init();
-        ParseInput();
-        Console.WriteLine($"2023 Day 5");
-        Console.WriteLine($"Part one: {DoPartOne()}");
-        object part2 = DoPartTwo();
-        Console.WriteLine($"Part two: {part2}");
-        File.WriteAllText(Path.Combine(Globals.Input2023, "Day5Solution.txt"), part2.ToString());
-    }
-
-    private List<long> FindValueInMap(long input, long[][] map)
-    {
-        List<long> result = new List<long>();
-        foreach (long[] longs in map)
-        {
-            long upperBorder = longs[2] + longs[1];
-
-            long value = int.MinValue;
-            if (IsValueInRange(input, longs[1], upperBorder))
-            {
-                long offset = CalculateOffset(input, longs[1]);
-                value = longs[0] + offset;
-            }
-            if (value == int.MinValue)
-            {
-                continue;
-            }
-            result.Add(value);
-        }
-        return result;
-    }
-
-    private List<long> RunMap(List<long> input, long[][] map)
-    {
-        List<long> result = new List<long>();
-        foreach (long item in input)
-        {
-            List<long> temp = FilterOutNonFound(FindValueInMap(item, map));
-            result.AddRange(temp);
-        }
-        return result;
-    }
-
-    private List<long> FilterOutNonFound(List<long> input)
-    {
-        List<long> result = new List<long>();
-        foreach (long l in input)
-        {
-            if (l != int.MinValue)
-            {
-                result.Add(l);
-            }
-        }
-        return result;
-    }
-
-    private Range SeedRange(long start, long length)
-    {
-        return new Range(start, length);
-    }
-
-    private List<Range> SeedRanges(long[] seed)
-    {
-        List<Range> result = new List<Range>();
-        for (int i = 0; i < seed.Length; i = i + 2)
-        {
-            long start = seed[i];
-            long length = seed[i + 1];
-            result.Add(SeedRange(start, length));
-        }
-        return result;
-    }
-
-    private List<Range> Seeds()
-    {
-        List<Range> seedRanges = SeedRanges(_seeds);
-        return seedRanges;
-    }
-
-    //private long Rec(long border, long Seed)
-    //{
-    //    long tempBorder = border;
-    //    if (Seed < border)
-    //    {
-    //        tempBorder = border / 2;
-    //        return Rec(tempBorder, Seed);
-    //    }
-    //    else
-    //    {
-    //        if (Seed > border)
-    //        {
-    //            tempBorder = border + border / 2;
-    //            return Rec(tempBorder, Seed);
-    //        }
-    //        else
-    //        {
-    //            return border;
-    //        }
-    //    }
-    //}
-
-    private long CalculateOffset(long Seed, long start)
-    {
-        return Seed - start;
-    }
-
-    private bool IsValueInRange(long value, long start , long end)
-    {
-        if (value >= start && value <= end)
-        {
-            return true;
-        }
-        return false;
-    }
-
+    //Parsing
     private long[] ParseSeeds(string line)
     {
         string s = line.Replace("seeds:", "").Trim();
@@ -333,45 +451,6 @@ internal class _2023Day5 : Solution
         return result;
     }
 
-    public override string? ToString()
-    {
-        StringBuilder sb = new StringBuilder();
-        return sb.AppendLine($"")
-        .AppendLine($"Seeds:")
-        .AppendLine($"{string.Join(", ", _seeds)}")
-        .AppendLine($"SeedToSoilMap:")
-        .AppendLine($"{ArrayToString(_seedToSoilMap)}")
-        .AppendLine($"SoilToFertilizerMap:")
-        .AppendLine($"{ArrayToString(_soilToFertilizerMap)}")
-        .AppendLine($"FertilizerToWaterMap:")
-        .AppendLine($"{ArrayToString(_fertilizerToWaterMap)}")
-        .AppendLine($"WaterToLightMap:")
-        .AppendLine($"{ArrayToString(_waterToLightMap)}")
-        .AppendLine($"LightToTemperaturMap:")
-        .AppendLine($"{ArrayToString(_lightToTemperaturMap)}")
-        .AppendLine($"TemperatureToHumidityMap:")
-        .AppendLine($"{ArrayToString(_temperatureToHumidityMap)}")
-        .AppendLine($"HumidityToLocationMap:")
-        .AppendLine($"{ArrayToString(_humidityToLocationMap)}").ToString();
-    }
-
-    private string ArrayToString(long[][] array)
-    {
-        StringBuilder sb = new StringBuilder();
-        foreach (long[] longs in array)
-        {
-            sb.AppendLine(string.Join(", ", longs));
-        }
-        return sb.ToString();
-    }  
-    
-    private string ArrayToString(long[] array)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine(string.Join(", ", array));
-        return sb.ToString();
-    }
-
     private class Range
     {
         public Range(long start, long length)
@@ -393,12 +472,25 @@ internal class _2023Day5 : Solution
             } 
         }
 
-        public long Current
+        public long Current => CalculateCurrent();
+
+        public bool IsContained(long value)
         {
-            get
+            if (value >= Start && value <= End)
             {
-                return CalculateCurrent();
+                return true;
             }
+            return false;
+        }
+
+        public long CalculateOffset(long value)
+        {
+            if (!IsContained(value))
+            {
+                return long.MinValue;
+            }
+
+            return value - Start;
         }
 
         private long CalculateCurrent()
@@ -411,8 +503,5 @@ internal class _2023Day5 : Solution
             }
             return curr;
         }
-
-
-        
     }
 }
