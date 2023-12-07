@@ -11,24 +11,17 @@ internal class _2023Day7 : Solution
     public override object DoPartOne()
     {
         List<HandBidPair> sortedCopy = SortHands(_One);
-        long total = 0;
-        for (int i = 0; i < sortedCopy.Count; i++)
-        {
-            total += sortedCopy[i].Bid * (i + 1);
-        }
-
-        return total;
+        return CalculateTotal(sortedCopy);
     }
 
     public override object DoPartTwo() // On Example it is correct but puzzle input is incorrect
     {
         List<HandBidPair> sortedCopy = SortHands(_Two);
-        long total = 0;
-        for (int i = 0; i < sortedCopy.Count; i++)
+        foreach (HandBidPair pair in sortedCopy)
         {
-            total += sortedCopy[i].Bid * (i + 1);
+            Console.WriteLine(pair);
         }
-        return total;
+        return CalculateTotal(sortedCopy);
     }
 
     public override void Run()
@@ -39,6 +32,17 @@ internal class _2023Day7 : Solution
         Console.WriteLine($"2023 Day 7");
         Console.WriteLine($"Part one: {DoPartOne()}");
         Console.WriteLine($"Part two: {DoPartTwo()}");
+    }
+
+    private long CalculateTotal(List<HandBidPair> list)
+    {
+        long total = 0;
+        for (int i = 0; i < list.Count; i++)
+        {
+            total += list[i].Bid * (i + 1);
+        }
+
+        return total;
     }
 
     private List<HandBidPair> GetHands(bool special)
@@ -81,7 +85,6 @@ internal class _2023Day7 : Solution
         public Type GetHandType();
         public string Cards { get; }
     }
-
 
     private class HandBidPair : IComparable<HandBidPair>, IComparable, IEquatable<HandBidPair>
     {
@@ -510,7 +513,6 @@ internal class _2023Day7 : Solution
         {
             return counts.Where(kvp => kvp.Value == 2).Count() == 2;
         }
-
 
         private string HandleTwoPair(string target, Dictionary<char,int>counts)
         {
