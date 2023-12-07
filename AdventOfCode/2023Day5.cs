@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AdventOfCode;
 internal class _2023Day5 : Solution
@@ -238,7 +233,7 @@ internal class _2023Day5 : Solution
         return min;
     }
 
-    private void CalculateMinimumThreaded(Range range, long numOfCompleted ,long total ,ConcurrentBag<long> resultArea)
+    private void CalculateMinimumThreaded(Range range, long numOfCompleted, long total, ConcurrentBag<long> resultArea)
     {
         long min = long.MaxValue;
         for (long i = range.Start; i < range.End; i++)
@@ -294,8 +289,8 @@ internal class _2023Day5 : Solution
             sb.AppendLine(string.Join(", ", longs));
         }
         return sb.ToString();
-    }  
-    
+    }
+
     private string ArrayToString(long[] array)
     {
         StringBuilder sb = new StringBuilder();
@@ -454,12 +449,12 @@ internal class _2023Day5 : Solution
         public long Length { get; private set; }
         public long End { get; private set; }
         private long Offset { get; set; } = 0;
-        public long Count 
-        { 
-            get 
-            { 
+        public long Count
+        {
+            get
+            {
                 return End - Start;
-            } 
+            }
         }
 
         public long Current => CalculateCurrent();

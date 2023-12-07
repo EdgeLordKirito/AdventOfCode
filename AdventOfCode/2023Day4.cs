@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdventOfCode;
+﻿namespace AdventOfCode;
 internal class _2023Day4 : Solution
 {
     public _2023Day4(string inputPath) : base(inputPath)
@@ -134,7 +128,7 @@ internal class _2023Day4 : Solution
                 {
                     continue;
                 }
-                result.Add(int.Parse(number)); 
+                result.Add(int.Parse(number));
             }
             return result;
         }
@@ -220,7 +214,7 @@ internal class _2023Day4 : Solution
             {
                 return;
             }
-            Add(card,amount);
+            Add(card, amount);
         }
 
         public void Add(ScratchCard card)

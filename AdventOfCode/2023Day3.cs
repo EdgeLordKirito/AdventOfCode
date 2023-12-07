@@ -115,7 +115,7 @@ internal class _2023Day3 : Solution
         {
             return int.MinValue;
         }
-        
+
         bool left = char.IsAsciiDigit(chars[1]);
         bool right = char.IsAsciiDigit(chars[3]);
 
@@ -206,7 +206,7 @@ internal class _2023Day3 : Solution
             result[1] = _input[digit.I][leftIndex];
         }
 
-        if(IsIndexOutOfBounds(digit.I, digit.J))
+        if (IsIndexOutOfBounds(digit.I, digit.J))
         {
             result[2] = '.';
         }
@@ -215,7 +215,7 @@ internal class _2023Day3 : Solution
             result[2] = _input[digit.I][digit.J];
         }
 
-        if(IsIndexOutOfBounds(digit.I, rightIndex))
+        if (IsIndexOutOfBounds(digit.I, rightIndex))
         {
             result[3] = '.';
         }
@@ -224,7 +224,7 @@ internal class _2023Day3 : Solution
             result[3] = _input[digit.I][rightIndex];
         }
 
-        if(IsIndexOutOfBounds(digit.I, rightmostIndex))
+        if (IsIndexOutOfBounds(digit.I, rightmostIndex))
         {
             result[4] = '.';
         }
