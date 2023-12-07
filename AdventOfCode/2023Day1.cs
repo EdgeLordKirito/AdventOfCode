@@ -77,17 +77,6 @@ internal sealed partial class _2023Day1 : Solution
             .Sum();
     }
 
-    public override void Init()
-    {
-        FileInfo info = new FileInfo(InputPath);
-        if (!info.Exists)
-        {
-            return;
-        }
-        string[] lines = File.ReadAllLines(InputPath);
-        Input = lines;
-    }
-
     public override void Run()
     {
         Init();

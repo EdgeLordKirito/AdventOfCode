@@ -44,16 +44,6 @@ internal class _2023Day4 : Solution
         return dict.TotalCount();
     }
 
-    public override void Init()
-    {
-        FileInfo info = new FileInfo(InputPath);
-        if (!info.Exists)
-        {
-            return;
-        }
-        Input = File.ReadAllLines(InputPath);
-    }
-
     public override void Run()
     {
         Init();

@@ -11,5 +11,13 @@ internal abstract class Solution
     public abstract object DoPartOne();
     public abstract object DoPartTwo();
     public abstract void Run();
-    public abstract void Init();
+    public void Init()
+    {
+        FileInfo fileInfo = new FileInfo(InputPath);
+        if (!fileInfo.Exists)
+        {
+            return;
+        }
+        Input = File.ReadAllLines(InputPath);
+    }
 }

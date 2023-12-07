@@ -47,17 +47,6 @@ internal partial class _2023Day2 : Solution
         Console.WriteLine($"Part two: {DoPartTwo()}");
     }
 
-    public override void Init()
-    {
-        FileInfo info = new FileInfo(InputPath);
-        if (!info.Exists)
-        {
-            return;
-        }
-        string[] input = File.ReadAllLines(InputPath);
-        Input = input;
-    }
-
     private List<ElfGame> ParseInput(string[] input)
     {
         List<ElfGame> result = new List<ElfGame>();

@@ -35,17 +35,17 @@ internal class _2023Day3 : Solution
         return 0;
     }
 
-    public override void Init()
-    {
-        FileInfo info = new FileInfo(InputPath);
-        if (!info.Exists)
-        {
-            return;
-        }
-        Input = File.ReadAllLines(InputPath);
-        _input = InputAsArray();
-        bools = InitHeatMap();
-    }
+    //public override void Init()
+    //{
+    //    FileInfo info = new FileInfo(InputPath);
+    //    if (!info.Exists)
+    //    {
+    //        return;
+    //    }
+    //    Input = File.ReadAllLines(InputPath);
+    //    _input = InputAsArray();
+    //    bools = InitHeatMap();
+    //}
 
     public override void Run()
     {

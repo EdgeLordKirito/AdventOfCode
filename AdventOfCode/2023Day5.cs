@@ -155,16 +155,6 @@ internal class _2023Day5 : Solution
     //    return minimum;
     //}
 
-    public override void Init()
-    {
-        FileInfo fileInfo = new FileInfo(InputPath);
-        if (!fileInfo.Exists)
-        {
-            return;
-        }
-        Input = File.ReadAllLines(InputPath);
-    }
-
     public override void Run()
     {
         Init();
