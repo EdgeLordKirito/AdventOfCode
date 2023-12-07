@@ -476,7 +476,7 @@ internal class _2023Day7 : Solution
             Dictionary<char, int> counts = GetCardCounts();
             if (IsTwoPair(counts))
             {
-                return HandleTwoPair(target);
+                return HandleTwoPair(target, counts);
             }
             var tuple = GetMaxCard(counts);
             char Id = tuple.card;
@@ -512,9 +512,9 @@ internal class _2023Day7 : Solution
         }
 
 
-        private string HandleTwoPair(string target)
+        private string HandleTwoPair(string target, Dictionary<char,int>counts)
         {
-            IEnumerable<char> chars = GetTwoPair(GetCardCounts());
+            IEnumerable<char> chars = GetTwoPair(counts);
             char stronger = GetStrongerOne(chars);
             string s = target.Replace('J', stronger);
             return s;
