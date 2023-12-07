@@ -14,12 +14,12 @@ internal class _2023Day7 : Solution
         return CalculateTotal(sortedCopy);
     }
 
-    public override object DoPartTwo() // On Example it is correct but puzzle input is incorrect
+    public override object DoPartTwo()
     {
         List<HandBidPair> sortedCopy = SortHands(_Two);
-        foreach (HandBidPair pair in sortedCopy)
+        foreach (var item in sortedCopy)
         {
-            Console.WriteLine(pair);
+            Console.WriteLine(item);
         }
         return CalculateTotal(sortedCopy);
     }
@@ -470,6 +470,19 @@ internal class _2023Day7 : Solution
             return (maxCard, maxCount);
         }
 
+        private char GetHighestValue(string target)
+        {
+            char max = '0';
+            foreach (char c in target)
+            {
+                if (_cardValuesSortedAscending.IndexOf(c) > _cardValuesSortedAscending.IndexOf(max))
+                {
+                    max = c;
+                }
+            }
+            return max;
+        }
+
         private string MaximizeHand(string target)
         {
             if (!target.Contains('J'))
@@ -484,6 +497,7 @@ internal class _2023Day7 : Solution
             var tuple = GetMaxCard(counts);
             char Id = tuple.card;
             int count = tuple.count;
+            int jokerCount = counts.TryGetValue('J', out int value) ? value : 0;
             if (count >= 3)
             {
                 return HandleThreeAndUp(Id, target);
@@ -543,9 +557,10 @@ internal class _2023Day7 : Solution
 
         private string HandleHighCard(string target)
         {
+            char MVP = GetHighestValue(target);
             if (target.Contains('J'))
             {
-                return target.Replace('J', 'A');
+                return target.Replace('J', MVP);
             }
             else
             {
