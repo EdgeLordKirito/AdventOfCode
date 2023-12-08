@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//Credit goes to https://github.com/rtrinh3/AdventOfCode
+﻿//Credit goes to https://github.com/rtrinh3/AdventOfCode
 // Helped me find my mistake in part 2
 
 namespace Aoc2023

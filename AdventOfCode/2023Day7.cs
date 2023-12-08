@@ -501,7 +501,8 @@ internal class _2023Day7 : Solution
             if (count >= 3)
             {
                 return HandleThreeAndUp(Id, target);
-            }else if (count == 2)
+            }
+            else if (count == 2)
             {
                 return HandleOnePair(Id, target);
             }
@@ -523,12 +524,12 @@ internal class _2023Day7 : Solution
             return chars;
         }
 
-        private bool IsTwoPair(Dictionary<char,int> counts)
+        private bool IsTwoPair(Dictionary<char, int> counts)
         {
             return counts.Where(kvp => kvp.Value == 2).Count() == 2;
         }
 
-        private string HandleTwoPair(string target, Dictionary<char,int>counts)
+        private string HandleTwoPair(string target, Dictionary<char, int> counts)
         {
             IEnumerable<char> chars = GetTwoPair(counts);
             char stronger = GetStrongerOne(chars);
