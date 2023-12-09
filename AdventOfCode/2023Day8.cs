@@ -24,6 +24,7 @@ internal class _2023Day8 : Solution
     {
         Init();
         ParseInput();
+        Console.WriteLine($"2023 Day 8");
         Console.WriteLine($"Part one: {DoPartOne()}");
         Console.WriteLine($"Part two: {DoPartTwo()}");
     }
@@ -156,20 +157,6 @@ internal class _2023Day8 : Solution
         private bool IsDestination(State state)
         {
             return state.Name.EndsWith('Z');
-        }
-
-        private bool IsDestination(List<State> states)
-        {
-            if (!states.First().Name.EndsWith('Z'))
-            {
-                return false;
-            }
-            List<string> destinationNames = new List<string>();
-            foreach (State state in states)
-            {
-                destinationNames.Add(state.Name);
-            }
-            return destinationNames.All(name => name.EndsWith('Z'));
         }
 
         private long Gcf(long a, long b)

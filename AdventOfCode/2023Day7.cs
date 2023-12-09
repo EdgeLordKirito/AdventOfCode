@@ -1,40 +1,33 @@
 ﻿namespace AdventOfCode;
 internal class _2023Day7 : Solution
 {
-    private List<HandBidPair> _One = new List<HandBidPair>();
-    private List<HandBidPair> _Two = new List<HandBidPair>();
-
     public _2023Day7(string inputPath) : base(inputPath)
     {
     }
 
     public override object DoPartOne()
     {
-        List<HandBidPair> sortedCopy = SortHands(_One);
-        return CalculateTotal(sortedCopy);
+        List<Hand> hands = GetHandTemps(false);
+        hands.Sort();
+        return CalculateTotal(hands);
     }
 
     public override object DoPartTwo()
     {
-        List<HandBidPair> sortedCopy = SortHands(_Two);
-        foreach (var item in sortedCopy)
-        {
-            Console.WriteLine(item);
-        }
-        return CalculateTotal(sortedCopy);
+        List<Hand> hands = GetHandTemps(true);
+        hands.Sort();
+        return CalculateTotal(hands);
     }
 
     public override void Run()
     {
         Init();
-        _One = GetHands(false);
-        _Two = GetHands(true);
         Console.WriteLine($"2023 Day 7");
         Console.WriteLine($"Part one: {DoPartOne()}");
         Console.WriteLine($"Part two: {DoPartTwo()}");
     }
 
-    private long CalculateTotal(List<HandBidPair> list)
+    private long CalculateTotal(List<Hand> list)
     {
         long total = 0;
         for (int i = 0; i < list.Count; i++)
@@ -45,230 +38,69 @@ internal class _2023Day7 : Solution
         return total;
     }
 
-    private List<HandBidPair> GetHands(bool special)
+    private List<Hand> GetHandTemps(bool special)
     {
-        List<HandBidPair> hands = new List<HandBidPair>();
-        if (special)
+        List<Hand> hands = new List<Hand>();
+        foreach (string s in Input)
         {
-            foreach (string s in Input)
-            {
-                string[] splits = s.Split(" ");
-                Hand2 h = new Hand2(splits[0]);
-                HandBidPair pair = new HandBidPair(h, int.Parse(splits[1]));
-                hands.Add(pair);
-            }
-            return hands;
+            string[] splits = s.Split(" ");
+            Hand hand = new Hand(splits[0], int.Parse(splits[1]),special);
+            hands.Add(hand);
         }
-        else
-        {
-            foreach (string s in Input)
-            {
-                string[] splits = s.Split(" ");
-                Hand h = new Hand(splits[0]);
-                HandBidPair pair = new HandBidPair(h, int.Parse(splits[1]));
-                hands.Add(pair);
-            }
-            return hands;
-        }
+        return hands;
     }
 
-    //Sort a list of HandBidPairs
-    private List<HandBidPair> SortHands(List<HandBidPair> hands)
+    private class HandComparer : IComparer<Hand>
     {
-        List<HandBidPair> sortedHands = [.. hands];
-        sortedHands.Sort();
-        return sortedHands;
-    }
+        private readonly string _cardValuesSortedAscending = "";
 
-    private interface IHand : IComparable<IHand>, IComparable, IEquatable<IHand>
-    {
-        public Type GetHandType();
-        public string Cards { get; }
-    }
+        public string Order => new string(_cardValuesSortedAscending);
 
-    private class HandBidPair : IComparable<HandBidPair>, IComparable, IEquatable<HandBidPair>
-    {
-        public IHand Hand { get; private set; }
-        public int Bid { get; private set; }
-
-        public HandBidPair(IHand hand, int bid)
+        public HandComparer(string ordering)
         {
-            Hand = hand;
-            Bid = bid;
+            _cardValuesSortedAscending = ordering;
         }
 
-        public override string ToString()
+        public HandComparer(bool mode)
         {
-            return $"{Hand} | {Bid}";
-        }
-
-        public int CompareTo(HandBidPair? other)
-        {
-            if (other is null)
+            if (mode)
             {
-                return 1;
-            }
-            return Hand.CompareTo(other.Hand);
-        }
-
-        public int CompareTo(object? obj)
-        {
-            if (obj is null)
-            {
-                return 1;
-            }
-
-            if (obj is HandBidPair h)
-            {
-                return CompareTo(h);
+                _cardValuesSortedAscending = "J23456789TQKA";
             }
             else
             {
-                throw new ArgumentException("Object is not a HandBidPair");
+                _cardValuesSortedAscending = "23456789TJQKA";
             }
         }
 
-        public bool Equals(HandBidPair? other)
+        public int Compare(Hand? x, Hand? y)
         {
-            if (other is null)
+            if (x is null && y is null)
             {
-                return false;
+                return 0;
             }
-            return Hand.Equals(other.Hand);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is null)
+            else if (x is null)
             {
-                return false;
+                return -1;
             }
-            return obj is HandBidPair h ? Equals(h) : false;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Hand, Bid);
-        }
-    }
-
-    private class Hand : IHand, IComparable<Hand>, IComparable, IEquatable<Hand>
-    {
-        private readonly string _cards = "";
-        private static string _cardValuesSortedAscending = "23456789TJQKA";
-
-        public string Cards => new string(_cards);
-
-        public Hand(string cards)
-        {
-            _cards = cards;
-        }
-
-        public Type GetHandType()
-        {
-            if (IsFiveOfAKind())
-            {
-                return Type.FiveOfAKind;
-            }
-            else if (IsFourOfAKind())
-            {
-                return Type.FourOfAKind;
-            }
-            else if (IsFullHouse())
-            {
-                return Type.FullHouse;
-            }
-            else if (IsThreeOfAKind())
-            {
-                return Type.ThreeOfAKind;
-            }
-            else if (IsTwoPair())
-            {
-                return Type.TwoPair;
-            }
-            else if (IsPair())
-            {
-                return Type.Pair;
-            }
-            else
-            {
-                return Type.HighCard;
-            }
-        }
-
-        private bool IsFiveOfAKind()
-        {
-            return _cards.Distinct().Count() == 1;
-        }
-
-        private bool IsFourOfAKind()
-        {
-            return _cards.GroupBy(x => x).Any(g => g.Count() == 4);
-        }
-
-        private bool IsFullHouse()
-        {
-            var groups = _cards.GroupBy(x => x).Select(g => g.Count()).OrderBy(c => c).ToList();
-            return groups.Count == 2 && groups[0] == 2 && groups[1] == 3;
-        }
-
-        private bool IsThreeOfAKind()
-        {
-            return _cards.GroupBy(x => x).Any(g => g.Count() == 3);
-        }
-
-        private bool IsTwoPair()
-        {
-            return _cards.GroupBy(x => x).Where(g => g.Count() == 2).Count() == 2;
-        }
-
-        private bool IsPair()
-        {
-            return _cards.GroupBy(x => x).Any(g => g.Count() == 2);
-        }
-
-        public override string ToString()
-        {
-            return $"{_cards}";
-        }
-
-        public int CompareTo(Hand? other)
-        {
-            if (other is null)
+            else if (y is null)
             {
                 return 1;
             }
-            Type self = GetHandType();
-            Type o = other.GetHandType();
-            if (self.CompareTo(o) > 0)
+            Type l = x.GetHandType();
+            Type r = y.GetHandType();
+            if (l.CompareTo(r) > 0)
             {
                 return 1;
             }
-            else if (self.CompareTo(o) < 0)
+            else if (l.CompareTo(r) < 0)
             {
                 return -1;
             }
             else
             {
                 //Equality case
-                return CompareHands(_cards, other.Cards);
-            }
-        }
-
-        public int CompareTo(object? obj)
-        {
-            if (obj is null)
-            {
-                return 1;
-            }
-
-            if (obj is Hand h)
-            {
-                return CompareTo(h);
-            }
-            else
-            {
-                throw new ArgumentException("Object is not a Hand");
+                return CompareHands(x.Cards, y.Cards);
             }
         }
 
@@ -303,101 +135,100 @@ internal class _2023Day7 : Solution
                 return _cardValuesSortedAscending.IndexOf(left).CompareTo(_cardValuesSortedAscending.IndexOf(right));
             }
         }
-
-        public bool Equals(Hand? other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-            return _cards.Equals(other.Cards);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-            return obj is Hand h ? Equals(h) : false;
-        }
-
-        public override int GetHashCode()
-        {
-            return _cards.GetHashCode();
-        }
-
-        public int CompareTo(IHand? other)
-        {
-            if (other is null)
-            {
-                throw new ArgumentNullException(nameof(other));
-            }
-
-            if (other is Hand h)
-            {
-                return CompareTo(h);
-            }
-            else
-            {
-                throw new ArgumentException("Object is not a Hand");
-            }
-        }
-
-        public bool Equals(IHand? other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-            if (other is Hand h)
-            {
-                return Equals(h);
-            }
-            else
-            {
-                return false;
-            }
-        }
     }
 
-    private class Hand2 : IHand, IComparable<Hand2>, IComparable, IEquatable<Hand2>
+    private class Hand : IEquatable<Hand>, IComparable<Hand>, IComparable
     {
-        private readonly string _cards = "";
-        private static string _cardValuesSortedAscending = "J23456789TQKA";
+        private bool _isSpecial = false;
+        private string _cards = "";
+        private int _bid = 0;
 
         public string Cards => new string(_cards);
+        public int Bid => _bid;
 
-        public Hand2(string cards)
+        public Hand(string cards, int bid, bool special)
         {
             _cards = cards;
+            _bid = bid;
+            _isSpecial = special;
+        }
+
+        public Hand(string cards, int bid) : this(cards, bid, false)
+        {
         }
 
         public Type GetHandType()
         {
-            string target = MaximizeHand(_cards);
+            Type type = GetHandType(_cards);
+            string target = new string(_cards);
+            if (!_isSpecial)
+            {
+                return type;
+            }
 
-            if (IsFiveOfAKind(target))
+            if (!target.Contains('J') || type.Equals(Type.FiveOfAKind))
+            {
+                return type;
+            }
+            int jokerCount = target.Count(c => c == 'J');
+            Type t = GetHandType(target);
+            switch (t, jokerCount)
+            {
+                case (Type.FourOfAKind, _):
+                    return Type.FiveOfAKind;
+
+                case (Type.FullHouse, _):
+                    return Type.FiveOfAKind;
+
+                case (Type.ThreeOfAKind, 1):
+                    return Type.FourOfAKind;
+
+                case (Type.ThreeOfAKind,2):
+                    return Type.FiveOfAKind;
+
+                case (Type.TwoPair, 1):
+                    return Type.FullHouse;
+
+                case (Type.TwoPair, 2):
+                    return Type.FourOfAKind;
+
+                case (Type.Pair, 1):
+                    return Type.ThreeOfAKind;
+
+                case (Type.Pair, 2):
+                    return Type.FourOfAKind;
+
+                case (Type.HighCard, 1):
+                    return Type.Pair;
+
+                default:
+                    return t;
+            }
+        }
+
+        private Type GetHandType(string hand)
+        {
+            if (IsFiveOfAKind(hand))
             {
                 return Type.FiveOfAKind;
             }
-            else if (IsFourOfAKind(target))
+            else if (IsFourOfAKind(hand))
             {
                 return Type.FourOfAKind;
             }
-            else if (IsFullHouse(target))
+            else if (IsFullHouse(hand))
             {
                 return Type.FullHouse;
             }
-            else if (IsThreeOfAKind(target))
+            else if (IsThreeOfAKind(hand))
             {
                 return Type.ThreeOfAKind;
             }
-            else if (IsTwoPair(target))
+            else if (IsTwoPair(hand))
             {
                 return Type.TwoPair;
             }
-            else if (IsPair(target))
+            else if (IsPair(hand))
             {
                 return Type.Pair;
             }
@@ -438,253 +269,33 @@ internal class _2023Day7 : Solution
             return target.GroupBy(x => x).Any(g => g.Count() == 2);
         }
 
-        private Dictionary<char, int> GetCardCounts()
-        {
-            Dictionary<char, int> counts = new Dictionary<char, int>();
-            foreach (char c in _cards)
-            {
-                if (counts.TryGetValue(c, out int value))
-                {
-                    counts[c] = ++value;
-                }
-                else
-                {
-                    counts.Add(c, 1);
-                }
-            }
-            return counts;
-        }
-
-        private (char card, int count) GetMaxCard(Dictionary<char, int> counts)
-        {
-            char maxCard = '0';
-            int maxCount = 0;
-            foreach (KeyValuePair<char, int> kvp in counts)
-            {
-                if (kvp.Value > maxCount && kvp.Key != 'J')
-                {
-                    maxCard = kvp.Key;
-                    maxCount = kvp.Value;
-                }
-            }
-            return (maxCard, maxCount);
-        }
-
-        private char GetHighestValue(string target)
-        {
-            char max = '0';
-            foreach (char c in target)
-            {
-                if (_cardValuesSortedAscending.IndexOf(c) > _cardValuesSortedAscending.IndexOf(max))
-                {
-                    max = c;
-                }
-            }
-            return max;
-        }
-
-        private string MaximizeHand(string target)
-        {
-            if (!target.Contains('J'))
-            {
-                return target;
-            }
-            Dictionary<char, int> counts = GetCardCounts();
-            if (IsTwoPair(counts))
-            {
-                return HandleTwoPair(target, counts);
-            }
-            var tuple = GetMaxCard(counts);
-            char Id = tuple.card;
-            int count = tuple.count;
-            int jokerCount = counts.TryGetValue('J', out int value) ? value : 0;
-            if (count >= 3)
-            {
-                return HandleThreeAndUp(Id, target);
-            }
-            else if (count == 2)
-            {
-                return HandleOnePair(Id, target);
-            }
-            else
-            {
-                return HandleHighCard(target);
-            }
-        }
-
-        private string HandleThreeAndUp(char id, string target)
-        {
-            string s = target.Replace('J', id);
-            return s;
-        }
-
-        private IEnumerable<char> GetTwoPair(Dictionary<char, int> counts)
-        {
-            IEnumerable<char> chars = counts.Where(kvp => kvp.Value == 2).Select(kvp => kvp.Key);
-            return chars;
-        }
-
-        private bool IsTwoPair(Dictionary<char, int> counts)
-        {
-            return counts.Where(kvp => kvp.Value == 2).Count() == 2;
-        }
-
-        private string HandleTwoPair(string target, Dictionary<char, int> counts)
-        {
-            IEnumerable<char> chars = GetTwoPair(counts);
-            char stronger = GetStrongerOne(chars);
-            string s = target.Replace('J', stronger);
-            return s;
-        }
-
-        private char GetStrongerOne(IEnumerable<char> chars)
-        {
-            char stronger = 'J';
-            foreach (char c in chars)
-            {
-                if (_cardValuesSortedAscending.IndexOf(c) > _cardValuesSortedAscending.IndexOf(stronger))
-                {
-                    stronger = c;
-                }
-            }
-            return stronger;
-        }
-
-        private string HandleOnePair(char id, string target)
-        {
-            string s = target.Replace('J', id);
-            return s;
-        }
-
-        private string HandleHighCard(string target)
-        {
-            char MVP = GetHighestValue(target);
-            if (target.Contains('J'))
-            {
-                return target.Replace('J', MVP);
-            }
-            else
-            {
-                return target;
-            }
-        }
-
-        public override string ToString()
-        {
-            return $"{_cards}";
-        }
-
-        public int CompareTo(IHand? other)
-        {
-            if (other == null)
-            {
-                throw new ArgumentNullException(nameof(other));
-            }
-            if (other is Hand2 h)
-            {
-                return CompareTo(h);
-            }
-            else
-            {
-                throw new ArgumentException("Object is not a Hand2");
-            }
-
-        }
-
-        public int CompareTo(object? obj)
-        {
-            if (obj is null)
-            {
-                return 1;
-            }
-            if (obj is Hand2 h)
-            {
-                return CompareTo(h);
-            }
-            else
-            {
-                throw new ArgumentException("Object is not a Hand2");
-            }
-        }
-
-        public int CompareTo(Hand2? other)
-        {
-            if (other is null)
-            {
-                return 1;
-            }
-            Type self = GetHandType();
-            Type o = other.GetHandType();
-            if (self.CompareTo(o) > 0)
-            {
-                return 1;
-            }
-            else if (self.CompareTo(o) < 0)
-            {
-                return -1;
-            }
-            else
-            {
-                //Equality case
-                return CompareHands(_cards, other.Cards);
-            }
-        }
-
-        private int CompareHands(string left, string right)
-        {
-            if (left.Equals(right))
-            {
-                return 0;
-            }
-            else
-            {
-                for (int i = 0; i < left.Length; i++)
-                {
-                    int comparison = CompareCharacters(left[i], right[i]);
-                    if (comparison != 0)
-                    {
-                        return comparison;
-                    }
-                }
-                return 0;
-            }
-        }
-
-        private int CompareCharacters(char left, char right)
-        {
-            if (left.Equals(right))
-            {
-                return 0;
-            }
-            else
-            {
-                return _cardValuesSortedAscending.IndexOf(left).CompareTo(_cardValuesSortedAscending.IndexOf(right));
-            }
-        }
-
-        public bool Equals(IHand? other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-            if (other is Hand2 h)
-            {
-                return Equals(h);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool Equals(Hand2? other)
+        public bool Equals(Hand? other)
         {
             if (other is null)
             {
                 return false;
             }
             return _cards.Equals(other.Cards);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is not null && Equals(obj as Hand);
+        }
+
+        public int CompareTo(Hand? other)
+        {
+            HandComparer comparer = new HandComparer(_isSpecial);
+            return comparer.Compare(this, other);
+        }
+
+        public int CompareTo(object? obj)
+        {
+            if(obj is not Hand)
+            {
+                throw new ArgumentException("Object is not valid");
+            }
+            return CompareTo((Hand)obj);
         }
     }
 

@@ -12,7 +12,7 @@ internal class Program
         //new _2023Day4(Path.Combine(Globals.Input2023, "Day4.txt")).Run();
         //new _2023Day5(Path.Combine(Globals.Input2023, "Day5.txt")).Run();
         //new _2023Day6(Path.Combine(Globals.Input2023, "Day6.txt")).Run();
-        //new _2023Day7(Path.Combine(Globals.Input2023, "Day7.txt")).Run();
+        new _2023Day7(Path.Combine(Globals.Input2023, "Day7.txt")).Run();
         //new _2023Day8(Path.Combine(Globals.Input2023, "Day8.txt")).Run();
         //new _2023Day9(Path.Combine(Globals.Input2023, "Day9.txt")).Run();
     }

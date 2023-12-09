@@ -39,6 +39,7 @@ internal class _2023Day9 : Solution
     {
         Init();
         ParseInput();
+        Console.WriteLine($"2023 Day 9");
         Console.WriteLine($"Part one: {DoPartOne()}");
         Console.WriteLine($"Part two: {DoPartTwo()}");
     }
@@ -62,15 +63,6 @@ internal class _2023Day9 : Solution
         lines = ints;
     }
 
-    private long CalculateTotal(List<int> values)
-    {
-        long total = 0;
-        foreach (int value in values)
-        {
-            total += value;
-        }
-        return total;
-    }
 
     private long CalculateTotal(List<long> values)
     {
@@ -80,16 +72,6 @@ internal class _2023Day9 : Solution
             total += value;
         }
         return total;
-    }
-
-    private int Add(int a, int b)
-    {
-        return a + b;
-    }
-
-    private long Add(long a, long b)
-    {
-        return a + b;
     }
 
     private class SequenceCalculator
